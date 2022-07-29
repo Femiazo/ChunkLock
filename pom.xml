@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.misleaded</groupId>
-    <artifactId>chunklock</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>Chunklock</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>Chunklock</name>
@@ -40,6 +40,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <outputFile>/home/jonas/spigot-1.18.2/plugins/ChunkLock.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -68,7 +69,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.1-R0.1-SNAPSHOT</version>
+            <version>1.18.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

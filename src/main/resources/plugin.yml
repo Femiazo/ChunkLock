@@ -4,3 +4,10 @@ main: me.misleaded.chunklock.Chunklock
 api-version: 1.18
 authors: [ misleaded, Fedaykin ]
 description: Locks all chunks that can only be unlocked with randomly generated items!
+commands:
+  start:
+    description: Begins the Chunklock challenge
+    usage: /start Optional(<x> <z>)
+  unlock:
+    description: Unlocks the chunk at specified coordinates
+    usage: /unlock <x> <z> Optional(<world>)
