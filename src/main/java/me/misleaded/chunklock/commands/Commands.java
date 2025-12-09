@@ -20,6 +20,8 @@ public class Commands implements CommandExecutor {
 			sender.sendMessage("Only players can use that command!");
 			return true;
 		}
+
+        if (!sender.isOp()) return true;
 		
 		Player p = (Player) sender;
     
@@ -39,9 +41,12 @@ public class Commands implements CommandExecutor {
             }
 
             World overworld = Bukkit.getWorlds().get(0);
+            World nether = Bukkit.getWorlds().get(1);
+            World end = Bukkit.getWorlds().get(2);
 
             int y = overworld.getHighestBlockYAt(x, z)+1;
             Location spawnLoc = new Location(overworld, x, y, z);
+            Location netherLoc = new Location(nether, x/8, 0, z/8);
 
             overworld.setSpawnLocation(spawnLoc);
             Bukkit.setSpawnRadius(6);
@@ -53,6 +58,8 @@ public class Commands implements CommandExecutor {
             ChunkManager.active = true;
 
             ChunkManager.unlockChunk(overworld.getChunkAt(spawnLoc));
+            ChunkManager.unlockChunk(nether.getChunkAt(netherLoc));
+            ChunkManager.unlockChunk(end.getChunkAt(6, 0));
             ChunkManager.capLoadedChunks();
         }
 
@@ -72,8 +79,8 @@ public class Commands implements CommandExecutor {
                 return true;
             }
 
-            World world = Bukkit.getWorlds().get(w); 
-            Chunk c = world.getChunkAt(new Location(world, x*16, 0, z*16));
+            World world = Bukkit.getWorlds().get(w);
+            Chunk c = world.getChunkAt(x, z);
             
             if (ChunkManager.isUnlocked(c)) {
                 p.sendMessage("§4Chunk is already unlocked");

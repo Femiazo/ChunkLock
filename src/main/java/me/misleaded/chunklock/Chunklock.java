@@ -8,7 +8,6 @@ import me.misleaded.chunklock.events.Events;
 public final class Chunklock extends JavaPlugin {
     public static JavaPlugin plugin;
 
-
     @Override
     public void onEnable() {
         plugin = this;

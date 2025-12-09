@@ -1,7 +1,7 @@
 name: Chunklock
 version: '${project.version}'
 main: me.misleaded.chunklock.Chunklock
-api-version: 1.18
+api-version: 1.19
 authors: [ misleaded, Fedaykin ]
 description: Locks all chunks that can only be unlocked with randomly generated items!
 commands:
