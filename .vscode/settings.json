@@ -1,3 +1,5 @@
 {
-    "pros.showInstallOnStartup": false
+    "pros.showInstallOnStartup": false,
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.compile.nullAnalysis.mode": "automatic"
 }
