@@ -30,7 +30,7 @@ public class ChunkManager {
     private static HashSet<List<Integer>> capped = new HashSet<List<Integer>>();
     private static HashMap<List<Integer>, String> unlockItems = new HashMap<List<Integer>, String>();
     private static HashMap<UUID, Location> playerLocations = new HashMap<UUID, Location>();
-    private static Integer rerollScale = 0;
+    private static int rerollScale = 0;
     private static HashSet<Inventory> openGuis = new HashSet<Inventory>();
 
     public static void capChunk(Chunk c, boolean uncap) {
@@ -38,12 +38,7 @@ public class ChunkManager {
             if (!active || capped.contains(chunkPos(c)) || unlocked.contains(chunkPos(c))) return;
 
         
-        Material m;
-        if (Bukkit.getWorlds().indexOf(c.getWorld()) == 1) {
-            m = netherMaterial;
-        } else {
-            m = material;
-        }
+        Material m = getMaterial(c.getWorld());
         
         int maxHeight = c.getWorld().getMaxHeight()-1;
         for (int x = 0; x < 16; x++) {
@@ -83,11 +78,9 @@ public class ChunkManager {
 
             Chunk neighbor = c.getWorld().getChunkAt(x, z);
 
-            if (unlocked.contains(Arrays.asList(x, z, Bukkit.getWorlds().indexOf(neighbor.getWorld())))) {
-                // wallChunk(neighbor, d[2], maxHeight, true);
+            if (unlocked.contains(Arrays.asList(x, z, pos.get(2)))) {
                 wallChunk(c, (d[2]+2)%4, maxHeight, true);
-            }
-            else {
+            } else {
                 wallChunk(neighbor, d[2], maxHeight, false);
             }
         }
@@ -99,12 +92,7 @@ public class ChunkManager {
         int zChunk = d % 2;
         int i = d < 2 ? 0 : 15;
 
-        Material m;
-        if (Bukkit.getWorlds().indexOf(c.getWorld()) == 1) {
-            m = netherMaterial;
-        } else {
-            m = material;
-        }
+        Material m = getMaterial(c.getWorld());
 
         for (int j = 0; j < 16; j++) {
             for (int y = 0; y < maxHeight; y++) {
@@ -123,11 +111,15 @@ public class ChunkManager {
         return Arrays.asList(c.getX(), c.getZ(), Bukkit.getWorlds().indexOf(c.getWorld()));
     }
 
-    public static boolean changeMaterial(Material m) {
-        if (active) return false;
-
-        material = m;
-        return true;
+    public static Material getMaterial(World w) {
+        switch (Bukkit.getWorlds().indexOf(w)) {
+            case 0:
+                return material;
+            case 1:
+                return netherMaterial;
+            default:
+                return material;
+        }
     }
 
     public static void saveData() {
@@ -145,7 +137,6 @@ public class ChunkManager {
             i++;
         }
 
-        // System.out.println(capped);
         ConfigurationSection cappedConfig = configFile.createSection("capped");
         i = 0;
         for (List<Integer> c : capped) {
@@ -190,12 +181,25 @@ public class ChunkManager {
             }
             unlockItems.put(Arrays.asList(c), unlockItemsConfig.getString(k));
         }
-
-
     }
 
     public static boolean isUnlocked(Chunk c) {
         return unlocked.contains(chunkPos(c));
+    }
+
+    public static boolean isBorder(Chunk c) {
+        List<Integer> pos = chunkPos(c);
+
+        if (unlocked.contains(pos)) return false;
+
+        for (int[] d : directions) {
+            int x = pos.get(0) + d[0];
+            int z = pos.get(1) + d[1];
+            
+            if (unlocked.contains(Arrays.asList(x, z, pos.get(2)))) return true;
+        }
+
+        return false;
     }
 
     public static int distance(int bX, int bZ, int cX, int cZ) {
@@ -254,8 +258,8 @@ public class ChunkManager {
         List<String> unlockLore = Arrays.asList("§r§7Pay §6§lx1 " + unlockMaterial.toString() + " §r§7to unlock.");
         ItemStack unlockItem = createItem(unlockMaterial, 1, "§r§lUnlock", unlockLore);
 
-        Integer rerollPrice = (int) Math.floor(4*Math.pow(1.5,rerollScale)); // 4(1.5)^x
-        List<String> rerollLore = Arrays.asList("§r§7Pay §b§lx" + rerollPrice.toString() + " DIAMOND §r§7to reroll.");
+        int rerollPrice = (int) Math.min(64, 4*Math.pow(1.5,rerollScale)); // 4(1.5)^x
+        List<String> rerollLore = Arrays.asList("§r§7Pay §b§lx" + rerollPrice + " DIAMOND §r§7to reroll.");
         ItemStack rerollItem = createItem(Material.DIAMOND, rerollPrice, "§r§lReroll", rerollLore);
 
         inv.setItem(3, unlockItem);
@@ -291,6 +295,6 @@ public class ChunkManager {
     }
 
     public static String randomUnlockable() {
-        return unlockables[(int) Math.floor(Math.random()*(unlockables.length-1))];
+        return unlockables[(int) Math.random()*(unlockables.length)];
     }
 }

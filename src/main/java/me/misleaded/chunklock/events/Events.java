@@ -85,7 +85,7 @@ public class Events implements Listener {
         if (!ChunkManager.active) return;
 
         if (e.hasBlock()) {
-            if (!ChunkManager.isUnlocked(e.getClickedBlock().getChunk())) {
+            if (ChunkManager.isBorder(e.getClickedBlock().getChunk())) {
                 if (e.getPlayer().isSneaking()) {
                     Inventory inv = ChunkManager.createGui(e.getClickedBlock().getChunk());
                     e.getPlayer().openInventory(inv);
