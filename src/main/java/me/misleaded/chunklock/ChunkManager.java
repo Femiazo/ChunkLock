@@ -26,6 +26,7 @@ public class ChunkManager {
     public static boolean active = false;
     private static Material material = Material.RED_STAINED_GLASS;
     private static Material netherMaterial = Material.GRAY_STAINED_GLASS;
+    private static Material endMaterial = Material.PURPLE_STAINED_GLASS;
     private static HashSet<List<Integer>> unlocked = new HashSet<List<Integer>>();
     private static HashSet<List<Integer>> capped = new HashSet<List<Integer>>();
     private static HashMap<List<Integer>, String> unlockItems = new HashMap<List<Integer>, String>();
@@ -117,6 +118,8 @@ public class ChunkManager {
                 return material;
             case 1:
                 return netherMaterial;
+            case 2:
+                return endMaterial;
             default:
                 return material;
         }
