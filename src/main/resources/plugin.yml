@@ -2,12 +2,25 @@ name: Chunklock
 version: '${project.version}'
 main: me.misleaded.chunklock.Chunklock
 api-version: 1.21
-authors: [ misleaded, Fedaykin ]
+authors: [misleaded, Fedaykin]
 description: Chunks can now only be unlocked with randomly generated items.
+
 commands:
   start:
     description: Begins the Chunklock challenge
-    usage: /start Optional(<x> <z>)
+    usage: "/<command> [x] [z]"
+    permission: chunklock.start
+    permission-message: "§cYou don't have permission to start the Chunklock challenge."
   unlock:
     description: Unlocks the chunk at specified coordinates
-    usage: /unlock <x> <z> Optional(<world>)
+    usage: "/<command> [x] [z] [world]"
+    permission: chunklock.unlock
+    permission-message: "§cYou don't have permission to unlock chunks."
+
+permissions:
+  chunklock.start:
+    description: Allows the player to start the Chunklock challenge
+    default: op
+  chunklock.unlock:
+    description: Allows the player to unlock chunks
+    default: op
