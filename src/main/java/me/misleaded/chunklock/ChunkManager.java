@@ -317,6 +317,6 @@ public class ChunkManager {
     }
 
     public static String randomUnlockable() {
-        return unlockables.get((int) Math.random()*(unlockables.size()));
+        return unlockables.get((int) (Math.random()*unlockables.size()));
     }
 }
