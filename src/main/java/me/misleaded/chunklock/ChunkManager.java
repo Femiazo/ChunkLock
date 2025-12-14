@@ -38,7 +38,6 @@ public class ChunkManager {
                 }
             }
         }
-        System.out.println(unlockables);
     }
 
     public static boolean active = false;
@@ -149,6 +148,7 @@ public class ChunkManager {
         configFile.set("active", active);
         configFile.set("material", material.toString());
         configFile.set("netherMaterial", netherMaterial.toString());
+        configFile.set("endMaterial", endMaterial.toString());
         configFile.set("rerollScale",rerollScale);
 
         ConfigurationSection unlockedConfig = configFile.createSection("unlocked");
@@ -180,6 +180,7 @@ public class ChunkManager {
         active = configFile.getBoolean("active");
         material = Material.getMaterial(configFile.getString("material"));
         netherMaterial = Material.getMaterial(configFile.getString("netherMaterial"));
+        endMaterial = Material.getMaterial(configFile.getString("endMaterial"));
         rerollScale = configFile.getInt("rerollScale");
 
         ConfigurationSection unlockedConfig = configFile.getConfigurationSection("unlocked");
