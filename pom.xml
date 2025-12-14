@@ -58,7 +58,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>/Users/alexlu/Desktop/Projects/minecraft/Servers/test_1.21.10/plugins</outputDirectory>
+                            <outputDirectory>/Users/alexlu/Desktop/Projects/minecraft/Servers/test_1.21.11/plugins</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.10-R0.1-SNAPSHOT</version>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
