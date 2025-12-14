@@ -1,6 +1,9 @@
 package me.misleaded.chunklock.events;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -111,8 +114,9 @@ public class Events implements Listener {
 
             if (!(clicked.equals(unlockItem) || clicked.equals(rerollItem))) return; 
 
-            int itemIndex = p.getInventory().first(clicked.getType());
-            if (itemIndex == -1) {
+            Set<ItemStack> stacks = new HashSet<>(p.getInventory().all(clicked.getType()).values());
+
+            if (stacks.isEmpty()) {
                 scheduler.runTaskLater(plugin, () -> {
                     p.closeInventory();
                 }, 1L);
@@ -120,14 +124,24 @@ public class Events implements Listener {
                 return;
             }
 
-            ItemStack item = p.getInventory().getItem(itemIndex);
-            int newAmount = item.getAmount()-clicked.getAmount();
-            if (newAmount < 0) {
+            int total = stacks.stream().mapToInt(entry -> entry.getAmount())
+                              .reduce(0, (a, b) -> a + b);
+
+            if (total < clicked.getAmount()) {
                 scheduler.runTaskLater(plugin, () -> {
                     p.closeInventory();
                 }, 1L);
                 p.sendMessage("§cYou do not have enough: " + clicked.getType().toString());
                 return;
+            }
+
+            int remaining = clicked.getAmount();
+            for (ItemStack s : stacks) {
+                int toRemove = Math.min(s.getAmount(), remaining);
+                s.setAmount(s.getAmount() - toRemove);
+                remaining -= toRemove;
+
+                if (remaining == 0) break;
             }
 
             int x = Integer.parseInt(e.getView().getTitle().split(" ")[2]);
@@ -144,7 +158,6 @@ public class Events implements Listener {
             scheduler.runTaskLater(plugin, () -> {
                 p.closeInventory();
             }, 1L);
-            item.setAmount(newAmount);
         }
     }
 
