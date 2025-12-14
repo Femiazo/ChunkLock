@@ -42,7 +42,7 @@ public class ChunkManager {
 
     public static boolean active = false;
     private static Material material = Material.RED_STAINED_GLASS;
-    private static Material netherMaterial = Material.GRAY_STAINED_GLASS;
+    private static Material netherMaterial = Material.WHITE_STAINED_GLASS;
     private static Material endMaterial = Material.PURPLE_STAINED_GLASS;
     private static HashSet<List<Integer>> unlocked = new HashSet<List<Integer>>();
     private static HashSet<List<Integer>> capped = new HashSet<List<Integer>>();

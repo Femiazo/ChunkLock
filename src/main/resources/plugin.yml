@@ -4,6 +4,7 @@ main: me.misleaded.chunklock.Chunklock
 api-version: 1.21
 authors: [misleaded, Fedaykin]
 description: Chunks can now only be unlocked with randomly generated items.
+softdepend: [BlueMap]
 
 commands:
   start:
