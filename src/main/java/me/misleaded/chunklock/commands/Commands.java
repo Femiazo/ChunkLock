@@ -65,7 +65,7 @@ public class Commands implements TabExecutor {
             overworld.setSpawnLocation(spawnLoc);
             Bukkit.setSpawnRadius(6);
 
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : Bukkit.getOnlinePlayers().toArray(new Player[0])) {
                 player.teleport(spawnLoc);
             }
 

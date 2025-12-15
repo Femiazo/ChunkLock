@@ -205,13 +205,27 @@ public class ChunkManager {
         }
     }
 
+    public static HashSet<List<Integer>> getChunks() {
+        return capped;
+    }
+
+    public static String unlockMaterial(List<Integer> pos) {
+        return unlockItems.getOrDefault(pos, null);
+    }
+
     public static boolean isUnlocked(Chunk c) {
-        return unlocked.contains(chunkPos(c));
+        return isUnlocked(chunkPos(c));
+    }
+
+    public static boolean isUnlocked(List<Integer> pos) {
+        return unlocked.contains(pos);
     }
 
     public static boolean isBorder(Chunk c) {
-        List<Integer> pos = chunkPos(c);
+        return isBorder(chunkPos(c));
+    }
 
+    public static boolean isBorder(List<Integer> pos) {
         if (unlocked.contains(pos)) return false;
 
         for (int[] d : directions) {

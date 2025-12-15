@@ -30,6 +30,35 @@
                 <version>3.12.1</version>
             </plugin>
 
+            <!-- Shade Apache Commons Lang -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Prevent dependency-reduced-pom.xml -->
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+
+                            <!-- Relocate Commons Lang to avoid conflicts -->
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.apache.commons.lang3</pattern>
+                                    <shadedPattern>
+                                        me.misleaded.chunklock.libs.commons.lang3
+                                    </shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Source jar for IDEs and repo hosting -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -44,7 +73,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Copy jar to minecraft server -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -58,7 +87,9 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>/Users/alexlu/Desktop/Projects/minecraft/Servers/test_1.21.11/plugins</outputDirectory>
+                            <outputDirectory>
+                                /Users/alexlu/Desktop/Projects/minecraft/Servers/test_1.21.11/plugins
+                            </outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${project.build.directory}</directory>
@@ -95,6 +126,7 @@
     </repositories>
 
     <dependencies>
+        <!-- BlueMap API (DO NOT SHADE) -->
         <dependency>
             <groupId>de.bluecolored</groupId>
             <artifactId>bluemap-api</artifactId>
@@ -102,11 +134,19 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Spigot API (DO NOT SHADE) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.21.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Apache Commons Lang (SHADED + RELOCATED) -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.14.0</version>
         </dependency>
     </dependencies>
 

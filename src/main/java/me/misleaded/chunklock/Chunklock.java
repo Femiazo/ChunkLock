@@ -19,6 +19,7 @@ public final class Chunklock extends JavaPlugin {
         this.saveDefaultConfig();
 
         ChunkManager.loadData();
+        new BlueMapIntegration();
     }
 
     @Override
