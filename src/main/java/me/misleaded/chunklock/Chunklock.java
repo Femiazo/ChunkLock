@@ -12,13 +12,15 @@ public final class Chunklock extends JavaPlugin {
     public void onEnable() {
         plugin = this;
 
+        ChunkManager.loadData();
+        new BlueMapIntegration();
+
         getServer().getPluginManager().registerEvents(new Events(), this);
         this.getCommand("start").setExecutor(new Commands());
         this.getCommand("unlock").setExecutor(new Commands());
 
         this.saveDefaultConfig();
 
-        ChunkManager.loadData();
     }
 
     @Override

@@ -21,6 +21,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+@FunctionalInterface
+interface ChunkCallback {
+    void handle(Chunk c);
+}
+
 public class ChunkManager {
     private static int[][] directions = { {1, 0, 0}, {0, 1, 1}, {-1, 0, 2}, {0, -1, 3} };
 
@@ -41,15 +46,21 @@ public class ChunkManager {
     }
 
     public static boolean active = false;
+    private static int rerollScale = 0;
     private static Material material = Material.RED_STAINED_GLASS;
-    private static Material netherMaterial = Material.GRAY_STAINED_GLASS;
+    private static Material netherMaterial = Material.WHITE_STAINED_GLASS;
     private static Material endMaterial = Material.PURPLE_STAINED_GLASS;
+
     private static HashSet<List<Integer>> unlocked = new HashSet<List<Integer>>();
     private static HashSet<List<Integer>> capped = new HashSet<List<Integer>>();
     private static HashMap<List<Integer>, String> unlockItems = new HashMap<List<Integer>, String>();
+
     private static HashMap<UUID, Location> playerLocations = new HashMap<UUID, Location>();
-    private static int rerollScale = 0;
     private static HashSet<Inventory> openGuis = new HashSet<Inventory>();
+
+    private static Set<ChunkCallback> unlockCallbacks = new HashSet<>();
+    private static Set<ChunkCallback> borderCallbacks = new HashSet<>();
+    private static Set<ChunkCallback> capCallbacks = new HashSet<>();
 
     public static void capChunk(Chunk c, boolean uncap) {
         if (!uncap)
@@ -74,6 +85,8 @@ public class ChunkManager {
 
         capped.add(chunkPos(c));
         unlockItems.put(chunkPos(c), randomUnlockable());
+
+        capCallbacks.forEach(callback -> callback.handle(c));
     }
 
     public static void capLoadedChunks() {
@@ -100,10 +113,13 @@ public class ChunkManager {
                 wallChunk(c, (d[2]+2)%4, maxHeight, true);
             } else {
                 wallChunk(neighbor, d[2], maxHeight, false);
+                borderCallbacks.forEach(callback -> callback.handle(neighbor));
             }
         }
         
         capChunk(c, true);
+
+        unlockCallbacks.forEach(callback -> callback.handle(c));
     }
 
     public static void wallChunk(Chunk c, int d, int maxHeight, boolean unwall) {
@@ -123,6 +139,33 @@ public class ChunkManager {
                 }
             }
         }
+    }
+
+    public static ChunkCallback onUnlock(ChunkCallback callback) {
+        unlockCallbacks.add(callback);
+        return callback;
+    }
+
+    public static boolean offUnlock(ChunkCallback callback) {
+        return unlockCallbacks.remove(callback);
+    }
+
+    public static ChunkCallback onBorder(ChunkCallback callback) {
+        borderCallbacks.add(callback);
+        return callback;
+    }
+
+    public static boolean offBorder(ChunkCallback callback) {
+        return borderCallbacks.remove(callback);
+    }
+
+    public static ChunkCallback onCap(ChunkCallback callback) {
+        capCallbacks.add(callback);
+        return callback;
+    }
+
+    public static boolean offCap(ChunkCallback callback) {
+        return capCallbacks.remove(callback);
     }
 
     public static List<Integer> chunkPos(Chunk c) {
@@ -205,13 +248,27 @@ public class ChunkManager {
         }
     }
 
+    public static HashSet<List<Integer>> getChunks() {
+        return capped;
+    }
+
+    public static String unlockMaterial(List<Integer> pos) {
+        return unlockItems.getOrDefault(pos, null);
+    }
+
     public static boolean isUnlocked(Chunk c) {
-        return unlocked.contains(chunkPos(c));
+        return isUnlocked(chunkPos(c));
+    }
+
+    public static boolean isUnlocked(List<Integer> pos) {
+        return unlocked.contains(pos);
     }
 
     public static boolean isBorder(Chunk c) {
-        List<Integer> pos = chunkPos(c);
+        return isBorder(chunkPos(c));
+    }
 
+    public static boolean isBorder(List<Integer> pos) {
         if (unlocked.contains(pos)) return false;
 
         for (int[] d : directions) {
