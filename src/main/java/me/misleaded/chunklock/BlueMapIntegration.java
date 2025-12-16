@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.text.WordUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
@@ -36,6 +37,7 @@ public class BlueMapIntegration {
             registerScalingScript();
             loadAssets();
             prepareMarkers();
+            prepareCallbacks();
 
             // temporary until we get a progression system
             setVisibility(2);
@@ -79,30 +81,73 @@ public class BlueMapIntegration {
         }
 
         for (List<Integer> chunk : ChunkManager.getChunks()) {
-            int x = chunk.get(0);
-            int z = chunk.get(1);
-            int w = chunk.get(2);
-            int y = Bukkit.getWorlds().get(w).getMaxHeight();
-            Map<String, MarkerSet> sets = markers.get(w);
+            Map<String, MarkerSet> sets = markers.get(chunk.get(2));
 
-            String item = ChunkManager.unlockMaterial(chunk);
-            String displayHTML = """
-                <div style="font-weight: bold; padding-bottom: 10px; white-space: nowrap;">
-                Chunk (%d, %d)
-                </div>
-                <span style="white-space: nowrap;">%s</span>
-            """.formatted(x, z, WordUtils.capitalizeFully(item.replace('_', ' ')));
+            POIMarker marker = createMarker(chunk);
+            String id = markerID(chunk);
 
-            POIMarker marker = POIMarker.builder().position(16*x + 8.0, y, 16*z + 8.0)
-                                        .label("Chunk (" + x + ", " + z + ")")
-                                        .detail(displayHTML)
-                                        .icon("assets/icons/minecraft_" + item.toLowerCase() + ".png", 31, 31)
-                                        .styleClasses("fixed-on-map")
-                                        .build();
-
-            if (ChunkManager.isBorder(chunk)) sets.get(BORDER_ID).put(x + "-" + z, marker);
-            if (!ChunkManager.isUnlocked(chunk)) sets.get(COMPLETE_ID).put(x + "-" + z, marker);
+            if (ChunkManager.isBorder(chunk)) sets.get(BORDER_ID).put(id, marker);
+            if (!ChunkManager.isUnlocked(chunk)) sets.get(COMPLETE_ID).put(id, marker);
         }
+    }
+
+    private void prepareCallbacks() {
+        ChunkManager.onUnlock(chunk -> {
+            List<Integer> pos = ChunkManager.chunkPos(chunk);
+            Map<String, MarkerSet> sets = markers.get(pos.get(2));
+
+            sets.get(BORDER_ID).remove(markerID(pos));
+            sets.get(COMPLETE_ID).remove(markerID(pos));
+        });
+
+        ChunkManager.onBorder(chunk -> {
+            List<Integer> pos = ChunkManager.chunkPos(chunk);
+            Map<String, MarkerSet> sets = markers.get(pos.get(2));
+
+            POIMarker marker = createMarker(pos);
+            String id = markerID(pos);
+
+            sets.get(BORDER_ID).put(id, marker);
+        });
+
+        ChunkManager.onCap(chunk -> {
+            List<Integer> pos = ChunkManager.chunkPos(chunk);
+            Map<String, MarkerSet> sets = markers.get(pos.get(2));
+
+            POIMarker marker = createMarker(pos);
+            String id = markerID(pos);
+
+            sets.get(COMPLETE_ID).put(id, marker);
+        });
+    }
+
+    private String markerID(List<Integer> chunk) {
+        int x = chunk.get(0);
+        int z = chunk.get(1);
+
+        return x + "." + z;
+    }
+
+    private POIMarker createMarker(List<Integer> chunk) {
+        int x = chunk.get(0);
+        int z = chunk.get(1);
+        int w = chunk.get(2);
+        int y = Bukkit.getWorlds().get(w).getMaxHeight();
+
+        String item = ChunkManager.unlockMaterial(chunk);
+        String displayHTML = """
+            <div style="font-weight: bold; padding-bottom: 10px; white-space: nowrap;">
+            Chunk (%d, %d)
+            </div>
+            <span style="white-space: nowrap;">%s</span>
+        """.formatted(x, z, WordUtils.capitalizeFully(item.replace('_', ' ')));
+
+        return POIMarker.builder().position(16*x + 8.0, y, 16*z + 8.0)
+                                    .label("Chunk (" + x + ", " + z + ")")
+                                    .detail(displayHTML)
+                                    .icon("assets/icons/minecraft_" + item.toLowerCase() + ".png", 31, 31)
+                                    .styleClasses("fixed-on-map")
+                                    .build();
     }
 
     public void setVisibility(int visibility) {
